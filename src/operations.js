@@ -29,7 +29,7 @@ const clone = (item) => JSON.parse(JSON.stringify(item))
 export function getOperations() {
   try {
     const stored = JSON.parse(localStorage.getItem(OPS_STORAGE_KEY))
-    if (stored?.version === 1) return stored
+    if (stored?.version === 1) { let dirty=false; stored.merchants=stored.merchants.map((m)=>{ if(!('accessStatus' in m)){ dirty=true; return {...m,accessStatus:m.id==='coffee'?'approved':'pending',accessToken:m.id==='coffee'?'gyl-9r7m-coffee':''} } return m }); if(dirty)localStorage.setItem(OPS_STORAGE_KEY,JSON.stringify(stored)); return stored }
   } catch (_) {}
   const initial = clone(seed)
   localStorage.setItem(OPS_STORAGE_KEY, JSON.stringify(initial))
@@ -97,3 +97,7 @@ export function updateRoute(id, patch) {
 export const merchantFor = (data, id) => data.merchants.find((item) => item.id === id)
 export const routeFor = (data, id) => data.routes.find((item) => item.id === id)
 export const offerFor = (data, id) => data.offers.find((item) => item.id === id)
+
+export function makeMerchantAccessToken(merchantId) { const data=getOperations(); const merchant=data.merchants.find((item)=>item.id===merchantId); if(!merchant) return null; merchant.accessStatus='approved'; merchant.accessToken=`gyl-${Math.random().toString(36).slice(2,8)}-${String(Date.now()).slice(-5)}`; saveOperations(data); return merchant.accessToken }
+export function revokeMerchantAccess(merchantId) { return updateMerchant(merchantId,{accessStatus:'pending',accessToken:''}) }
+export function findMerchantByAccessToken(token) { const data=getOperations(); return data.merchants.find((item)=>item.accessStatus==='approved' && item.accessToken===token) || null }
