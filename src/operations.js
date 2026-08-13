@@ -5,20 +5,20 @@ const zh = (value) => value
 const seed = {
   version: 1,
   merchants: [
-    { id: 'coffee', name: zh('\u65e7\u65f6\u5149\u5496\u5561\u9986'), category: zh('\u767e\u5e74\u6d0b\u697c\u91cc\u7684\u5496\u5561\u9986'), contact: '13800000001', status: 'active', routeId: 'art', note: zh('\u4e0b\u53483\u70b9\u7a97\u8fb9\u9633\u5149\u6700\u597d\u3002') },
-    { id: 'craft', name: zh('\u6709\u5149\u624b\u4f5c\u6240'), category: zh('\u628a\u6d77\u98ce\u505a\u6210\u7eaa\u5ff5\u54c1'), contact: '13800000002', status: 'active', routeId: 'art', note: zh('\u53ef\u9884\u7ea6 60 \u5206\u949f\u624b\u4f5c\u4f53\u9a8c\u3002') },
-    { id: 'dining', name: zh('\u6d77\u8fb9\u5c0f\u9986'), category: zh('\u770b\u5b8c\u65e5\u843d\u518d\u5403\u996d'), contact: '13800000003', status: 'active', routeId: 'food', note: zh('\u6bcf\u5929\u6309\u6e14\u83b7\u66f4\u65b0\u83dc\u5355\u3002') }
+    { id: 'coffee', name: zh('旧时光咖啡馆'), category: zh('百年洋楼里的咖啡馆'), contact: '13800000001', status: 'active', routeId: 'art', note: zh('下午3点窗边阳光最好。') },
+    { id: 'craft', name: zh('有光手作所'), category: zh('把海风做成纪念品'), contact: '13800000002', status: 'active', routeId: 'art', note: zh('可预约 60 分钟手作体验。') },
+    { id: 'dining', name: zh('海边小馆'), category: zh('看完日落再吃饭'), contact: '13800000003', status: 'active', routeId: 'food', note: zh('每天按渔获更新菜单。') }
   ],
   routes: [
-    { id: 'art', title: zh('\u6587\u827a\u6f2b\u6e38\u7ebf'), duration: zh('3.5 \u5c0f\u65f6'), status: 'active', stops: 4 },
-    { id: 'love', title: zh('\u604b\u4eba\u53d6\u666f\u7ebf'), duration: zh('2.5 \u5c0f\u65f6'), status: 'active', stops: 3 },
-    { id: 'food', title: zh('\u5c9b\u5473\u5bfb\u9c9c\u7ebf'), duration: zh('4 \u5c0f\u65f6'), status: 'active', stops: 5 },
-    { id: 'family', title: zh('\u4eb2\u5b50\u8f7b\u677e\u7ebf'), duration: zh('3 \u5c0f\u65f6'), status: 'active', stops: 4 }
+    { id: 'art', title: zh('文艺漫游线'), duration: zh('3.5 小时'), status: 'active', stops: 4 },
+    { id: 'love', title: zh('恋人取景线'), duration: zh('2.5 小时'), status: 'active', stops: 3 },
+    { id: 'food', title: zh('岛味寻鲜线'), duration: zh('4 小时'), status: 'active', stops: 5 },
+    { id: 'family', title: zh('亲子轻松线'), duration: zh('3 小时'), status: 'active', stops: 4 }
   ],
   offers: [
-    { id: 'offer-coffee', merchantId: 'coffee', routeId: 'art', title: zh('\u4e0b\u5348\u8336\u8def\u7ebf\u4e13\u4eab'), price: 58, originalPrice: 68, active: true, quota: 80 },
-    { id: 'offer-craft', merchantId: 'craft', routeId: 'art', title: zh('\u624b\u4f5c\u4f53\u9a8c\u4e5d\u6298'), price: 108, originalPrice: 120, active: true, quota: 40 },
-    { id: 'offer-dining', merchantId: 'dining', routeId: 'food', title: zh('\u6d77\u666f\u53cc\u4eba\u9910'), price: 168, originalPrice: 198, active: true, quota: 50 }
+    { id: 'offer-coffee', merchantId: 'coffee', routeId: 'art', title: zh('下午茶路线专享'), price: 58, originalPrice: 68, active: true, quota: 80 },
+    { id: 'offer-craft', merchantId: 'craft', routeId: 'art', title: zh('手作体验九折'), price: 108, originalPrice: 120, active: true, quota: 40 },
+    { id: 'offer-dining', merchantId: 'dining', routeId: 'food', title: zh('海景双人餐'), price: 168, originalPrice: 198, active: true, quota: 50 }
   ],
   coupons: [],
   visits: 1286,
@@ -48,7 +48,7 @@ export function couponCode() {
 export function issueCoupon({ phone, offerId = 'offer-coffee', visitor = '' }) {
   const data = getOperations()
   const offer = data.offers.find((item) => item.id === offerId && item.active) || data.offers[0]
-  if (!offer) throw new Error('\u5f53\u524d\u6ca1\u6709\u53ef\u9886\u53d6\u7684\u4f18\u60e0\u3002')
+  if (!offer) throw new Error('当前没有可领取的优惠。')
   const coupon = { id: `coupon-${Date.now()}`, code: couponCode(), phone, visitor, offerId: offer.id, merchantId: offer.merchantId, status: 'active', createdAt: new Date().toISOString(), redeemedAt: null }
   data.coupons.unshift(coupon)
   saveOperations(data)
@@ -57,8 +57,8 @@ export function issueCoupon({ phone, offerId = 'offer-coffee', visitor = '' }) {
 export function redeemCoupon(code) {
   const data = getOperations()
   const coupon = data.coupons.find((item) => item.code.trim().toUpperCase() === code.trim().toUpperCase())
-  if (!coupon) return { ok: false, reason: '\u672a\u627e\u5230\u8fd9\u4e2a\u4f18\u60e0\u7801\u3002' }
-  if (coupon.status === 'redeemed') return { ok: false, reason: '\u8be5\u4f18\u60e0\u7801\u5df2\u4e8e\u4e4b\u524d\u6838\u9500\u3002', coupon }
+  if (!coupon) return { ok: false, reason: '未找到这个优惠码。' }
+  if (coupon.status === 'redeemed') return { ok: false, reason: '该优惠码已于之前核销。', coupon }
   coupon.status = 'redeemed'
   coupon.redeemedAt = new Date().toISOString()
   saveOperations(data)
@@ -71,7 +71,7 @@ export function updateMerchant(id, patch) {
 }
 export function addMerchant(input) {
   const data = getOperations(); const id = `merchant-${Date.now()}`
-  const merchant = { id, name: input.name, category: input.category || '\u7279\u8272\u5c9b\u4e0a\u5c0f\u5e97', contact: input.contact || '', status: 'active', routeId: input.routeId || data.routes[0]?.id || '', note: input.note || '' }
+  const merchant = { id, name: input.name, category: input.category || '特色岛上小店', contact: input.contact || '', status: 'active', routeId: input.routeId || data.routes[0]?.id || '', note: input.note || '' }
   data.merchants.unshift(merchant); saveOperations(data); return merchant
 }
 export function updateOffer(id, patch) {
@@ -86,7 +86,7 @@ export function addOffer(input) {
 }
 export function addRoute(input) {
   const data = getOperations(); const id = `route-${Date.now()}`
-  const route = { id, title: input.title, duration: input.duration || '\u5f85\u5b9a', stops: Number(input.stops || 0), status: 'active' }
+  const route = { id, title: input.title, duration: input.duration || '待定', stops: Number(input.stops || 0), status: 'active' }
   data.routes.unshift(route); saveOperations(data); return route
 }
 export function updateRoute(id, patch) {
